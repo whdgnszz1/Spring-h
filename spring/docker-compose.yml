@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    image: spring-h-app
+    container_name: spring-h-app
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - spring-network
+
+volumes:
+  mysql-data:
+
+networks:
+  spring-network:
