@@ -11,6 +11,7 @@ package com.example.spring.user;
  ****************************************************/
 
 import com.example.spring.domain.User;
+import com.example.spring.dto.user.PutUserRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,17 +44,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUser(Long userId, User userDetails) {
-        Optional<User> optionalUser = userRepository.findById(userId);
+
+
+    public User updateUser(PutUserRequestDto putUserRequestDto) {
+        Optional<User> optionalUser = userRepository.findById(putUserRequestDto.getUserId());
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setEmail(userDetails.getEmail());
-            user.setPassword(userDetails.getPassword());
-            user.setRole(userDetails.getRole());
+            user.setEmail(putUserRequestDto.getEmail());
             return userRepository.save(user);
         } else {
-            throw new RuntimeException("User not found with id " + userId);
+            throw new RuntimeException("User not found with id " + putUserRequestDto.getUserId());
         }
     }
 
