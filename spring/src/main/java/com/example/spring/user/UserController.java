@@ -12,6 +12,9 @@ package com.example.spring.user;
 
 
 import com.example.spring.domain.User;
+import com.example.spring.dto.ResponseMessage;
+import com.example.spring.dto.user.CreateUserRequestDto;
+import com.example.spring.dto.user.PutUserRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,42 +38,85 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<ResponseMessage> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        ResponseMessage response = ResponseMessage.builder()
+                .data(users)
+                .statusCode(200)
+                .resultMessage("Success")
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ResponseMessage> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
+            ResponseMessage response = ResponseMessage.builder()
+                    .data(user.get())
+                    .statusCode(200)
+                    .resultMessage("Success")
+                    .build();
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.notFound().build();
+            ResponseMessage response = ResponseMessage.builder()
+                    .statusCode(404)
+                    .resultMessage("User not found")
+                    .build();
+            return ResponseEntity.status(404).body(response);
         }
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public ResponseEntity<ResponseMessage> createUser(@RequestBody CreateUserRequestDto createUserRequestDto) {
+        User user = new User();
+        user.setEmail(createUserRequestDto.getEmail());
+        user.setPassword(createUserRequestDto.getPassword());
+        User createdUser = userService.createUser(user);
+        ResponseMessage response = ResponseMessage.builder()
+                .data(createdUser)
+                .statusCode(201)
+                .resultMessage("User created successfully")
+                .build();
+        return ResponseEntity.status(201).body(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+    @PutMapping()
+    public ResponseEntity<ResponseMessage> updateUser(@RequestBody PutUserRequestDto userDetails) {
         try {
-            User updatedUser = userService.updateUser(id, userDetails);
-            return ResponseEntity.ok(updatedUser);
+            User updatedUser = userService.updateUser(userDetails);
+            ResponseMessage response = ResponseMessage.builder()
+                    .data(updatedUser)
+                    .statusCode(200)
+                    .resultMessage("User updated successfully")
+                    .build();
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            ResponseMessage response = ResponseMessage.builder()
+                    .statusCode(404)
+                    .resultMessage("User not found")
+                    .detailMessage(e.getMessage())
+                    .build();
+            return ResponseEntity.status(404).body(response);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ResponseMessage> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUser(id);
-            return ResponseEntity.noContent().build();
+            ResponseMessage response = ResponseMessage.builder()
+                    .statusCode(204)
+                    .resultMessage("User deleted successfully")
+                    .build();
+            return ResponseEntity.status(204).body(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            ResponseMessage response = ResponseMessage.builder()
+                    .statusCode(404)
+                    .resultMessage("User not found")
+                    .detailMessage(e.getMessage())
+                    .build();
+            return ResponseEntity.status(404).body(response);
         }
     }
 }
