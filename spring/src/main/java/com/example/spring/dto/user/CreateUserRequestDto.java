@@ -12,6 +12,7 @@ package com.example.spring.dto.user;
 
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author : Jonghun Hong
@@ -22,5 +23,6 @@ import lombok.Data;
  */
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class CreateUserRequestDto extends UserCommonDto {
 }
